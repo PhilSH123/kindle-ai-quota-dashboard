@@ -101,7 +101,7 @@ test('browser runtime is valid JavaScript', () => {
   }
 });
 
-function runBrowserRuntime(snapshot, storage) {
+function runBrowserRuntime(snapshot, storage, fixedTime) {
   const nodes = new Map();
   function node() {
     return {
@@ -135,14 +135,42 @@ function runBrowserRuntime(snapshot, storage) {
   };
   const window = { DASH_DATA: snapshot, localStorage };
   const source = fs.readFileSync(path.join(ROOT, 'web', 'dashboard-runtime.js'), 'utf8');
-  vm.runInNewContext(source, {
+  const context = {
     window,
     document,
     location: { search: '' },
     setTimeout: () => 1,
-  });
+  };
+  if (fixedTime) {
+    const instant = new Date(fixedTime).getTime();
+    context.Date = class KindleUtcDate extends Date {
+      constructor(...args) { super(...(args.length ? args : [instant])); }
+      static now() { return instant; }
+      getFullYear() { return this.getUTCFullYear(); }
+      getMonth() { return this.getUTCMonth(); }
+      getDate() { return this.getUTCDate(); }
+      getDay() { return this.getUTCDay(); }
+      getHours() { return this.getUTCHours(); }
+      getMinutes() { return this.getUTCMinutes(); }
+    };
+  }
+  vm.runInNewContext(source, context);
   return { nodes, window };
 }
+
+test('Kindle UTC clock and quiet hours use Beijing time', () => {
+  const snapshot = demoSnapshot();
+  snapshot.updatedAt = '2026-10-02T22:20:00+08:00';
+  const evening = runBrowserRuntime(snapshot, new Map(), '2026-10-02T22:25:00+08:00');
+  assert.equal(evening.nodes.get('#dtTime').textContent, '22:25');
+  assert.equal(evening.nodes.get('#dtDate').textContent, '2026年10月2日');
+  assert.equal(evening.nodes.get('#dataStatus').textContent, '实时 · 22:20');
+
+  const morning = runBrowserRuntime(null, new Map(), '2026-10-02T04:10:00+08:00');
+  assert.equal(morning.nodes.get('#dtTime').textContent, '04:10');
+  assert.equal(morning.nodes.get('#dtDate').textContent, '2026年10月2日');
+  assert.equal(morning.nodes.get('#dataStatus').textContent, '夜间省电 · 08:00恢复');
+});
 
 test('browser runtime restores a valid cache and rejects older replacement data', () => {
   const storage = new Map();

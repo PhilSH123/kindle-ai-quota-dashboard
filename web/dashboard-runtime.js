@@ -20,6 +20,7 @@
   };
   var sourceNames = ['claude', 'codex', 'kimi', 'deepseek', 'glm'];
   var weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
+  var beijingOffset = 8 * 60 * 60 * 1000;
 
   var ui = {
     find: function (id) {
@@ -49,6 +50,20 @@
 
   function twoDigits(value) {
     return value < 10 ? '0' + value : String(value);
+  }
+
+  function beijingParts(value) {
+    var date = value instanceof Date ? value : new Date(value);
+    if (isNaN(date.getTime())) return null;
+    var shifted = new Date(date.getTime() + beijingOffset);
+    return {
+      year: shifted.getUTCFullYear(),
+      month: shifted.getUTCMonth(),
+      date: shifted.getUTCDate(),
+      day: shifted.getUTCDay(),
+      hour: shifted.getUTCHours(),
+      minute: shifted.getUTCMinutes()
+    };
   }
 
   function timestamp(value) {
@@ -139,28 +154,23 @@
   }
 
   function clockText(value) {
-    var date = new Date(value);
-    if (isNaN(date.getTime())) return '--:--';
-    return twoDigits(date.getHours()) + ':' + twoDigits(date.getMinutes());
+    var parts = beijingParts(value);
+    return parts ? twoDigits(parts.hour) + ':' + twoDigits(parts.minute) : '--:--';
   }
 
   function isQuiet(date) {
-    var hour = (date || new Date()).getHours();
-    return hour >= settings.quietStart && hour < settings.quietEnd;
+    var parts = beijingParts(date || new Date());
+    return !!parts && parts.hour >= settings.quietStart && parts.hour < settings.quietEnd;
   }
 
   function millisecondsUntilMorning(date) {
     var now = date || new Date();
-    var morning = new Date(
-      now.getFullYear(),
-      now.getMonth(),
-      now.getDate(),
-      settings.quietEnd,
-      0,
-      5,
-      0
-    );
-    return Math.max(1000, morning.getTime() - now.getTime());
+    var parts = beijingParts(now);
+    var morning = Date.UTC(
+      parts.year, parts.month, parts.date, settings.quietEnd, 0, 5, 0
+    ) - beijingOffset;
+    if (morning <= now.getTime()) morning += 24 * 60 * 60 * 1000;
+    return Math.max(1000, morning - now.getTime());
   }
 
   function updateFreshness() {
@@ -215,10 +225,10 @@
   }
 
   function updateClock() {
-    var now = new Date();
-    ui.text('dtTime', twoDigits(now.getHours()) + ':' + twoDigits(now.getMinutes()));
-    ui.text('dtDate', now.getFullYear() + '年' + (now.getMonth() + 1) + '月' + now.getDate() + '日');
-    ui.text('dtWeek', weekdays[now.getDay()]);
+    var now = beijingParts(new Date());
+    ui.text('dtTime', twoDigits(now.hour) + ':' + twoDigits(now.minute));
+    ui.text('dtDate', now.year + '年' + (now.month + 1) + '月' + now.date + '日');
+    ui.text('dtWeek', weekdays[now.day]);
     updateFreshness();
   }
 
