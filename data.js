@@ -1,17 +1,17 @@
 window.DASH_DATA = {
-  "updatedAt": "2026-10-02T22:22:43.070+08:00",
+  "updatedAt": "2026-10-02T22:30:08.812+08:00",
   "weather": {
     "ok": true,
     "description": "多云",
     "iconKey": "cloudy",
-    "tempC": 18.3,
-    "feelsLikeC": 15.7,
-    "humidity": 31,
-    "windKph": 4,
-    "windDir": "南风",
+    "tempC": 18.2,
+    "feelsLikeC": 15.8,
+    "humidity": 32,
+    "windKph": 3.5,
+    "windDir": "东南风",
     "place": "石家庄",
-    "observedAt": "2026-10-02T22:15:00.000+08:00",
-    "fetchedAt": "2026-10-02T22:22:39.563+08:00",
+    "observedAt": "2026-10-02T22:30:00.000+08:00",
+    "fetchedAt": "2026-10-02T22:30:06.169+08:00",
     "stale": false,
     "error": null
   },
@@ -24,7 +24,7 @@ window.DASH_DATA = {
       "ok": false,
       "label": "Claude",
       "windows": [],
-      "fetchedAt": "2026-10-02T22:22:39.975+08:00",
+      "fetchedAt": "2026-10-02T22:30:06.551+08:00",
       "error": "未启用",
       "disabled": true
     },
@@ -34,23 +34,23 @@ window.DASH_DATA = {
       "windows": [
         {
           "name": "5小时",
-          "usedPct": 71,
+          "usedPct": 78,
           "resetAt": "2026-10-02T22:58:58.000+08:00"
         },
         {
           "name": "周",
-          "usedPct": 83,
+          "usedPct": 84,
           "resetAt": "2026-10-04T10:52:59.000+08:00"
         }
       ],
-      "fetchedAt": "2026-10-02T22:22:39.976+08:00",
+      "fetchedAt": "2026-10-02T22:30:06.552+08:00",
       "error": null
     },
     "kimi": {
       "ok": false,
       "label": "Kimi",
       "windows": [],
-      "fetchedAt": "2026-10-02T22:22:40.019+08:00",
+      "fetchedAt": "2026-10-02T22:30:06.592+08:00",
       "error": "未启用",
       "disabled": true
     },
@@ -60,7 +60,7 @@ window.DASH_DATA = {
       "balance": 121.45,
       "currency": "CNY",
       "detail": "余额 ¥121.45",
-      "fetchedAt": "2026-10-02T22:22:40.019+08:00",
+      "fetchedAt": "2026-10-02T22:30:06.592+08:00",
       "error": null
     },
     "glm": {
@@ -70,7 +70,7 @@ window.DASH_DATA = {
         {
           "name": "MCP 月",
           "usedPct": 0,
-          "resetAt": "2026-11-02T10:00:32.998+08:00"
+          "resetAt": "2026-11-02T10:00:32.999+08:00"
         },
         {
           "name": "5小时",
@@ -83,7 +83,7 @@ window.DASH_DATA = {
           "resetAt": "2026-10-09T09:34:00.999+08:00"
         }
       ],
-      "fetchedAt": "2026-10-02T22:22:40.051+08:00",
+      "fetchedAt": "2026-10-02T22:30:06.623+08:00",
       "error": null
     }
   }
