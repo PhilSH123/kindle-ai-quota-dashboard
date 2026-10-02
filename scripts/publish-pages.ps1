@@ -53,8 +53,10 @@ Copy-Item -LiteralPath (Join-Path $distRoot '.nojekyll') -Destination $pagesRoot
 git -C $pagesRoot add -A
 if ($LASTEXITCODE -ne 0) { throw '暂存页面失败' }
 git -C $pagesRoot diff --cached --quiet
-if ($LASTEXITCODE -eq 0) { Write-Host '页面内容未变化'; exit 0 }
-git -C $pagesRoot commit --quiet -m 'Update dashboard snapshot'
-if ($LASTEXITCODE -ne 0) { throw '提交页面失败' }
+if ($LASTEXITCODE -eq 0) { Write-Host '页面内容未变化，检查是否有待推送的提交。' }
+else {
+  git -C $pagesRoot commit --quiet -m 'Update dashboard snapshot'
+  if ($LASTEXITCODE -ne 0) { throw '提交页面失败' }
+}
 Invoke-DirectGit -GitArgs @('-C', $pagesRoot, 'push', 'origin', 'gh-pages')
 Write-Host '已推送 gh-pages 分支。'
