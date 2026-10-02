@@ -215,18 +215,20 @@ html.legacy-kindle.large-kindle .dt-battery,
 html.legacy-kindle.large-kindle .quote-src { font-size: 16px; }
 html.legacy-kindle.large-kindle .quote-text { font-size: 25px; }
 html.legacy-kindle.large-kindle .q-card {
-  clear: both; float: none; width: 100%; height: auto;
-  min-height: 0; margin-right: 0;
+  height: auto; min-height: 300px;
 }
-html.legacy-kindle.large-kindle .q-name { font-size: 25px; }
-html.legacy-kindle.large-kindle .q-label { font-size: 18px; }
-html.legacy-kindle.large-kindle .q-pct { font-size: 20px; }
+html.legacy-kindle.large-kindle #cardDeepSeek { min-height: 110px; }
+html.legacy-kindle.large-kindle .q-name { font-size: 28px; }
+html.legacy-kindle.large-kindle .q-head { margin-bottom: 16px; }
+html.legacy-kindle.large-kindle .q-row { margin-bottom: 18px; }
+html.legacy-kindle.large-kindle .q-label { font-size: 20px; }
+html.legacy-kindle.large-kindle .q-pct { font-size: 23px; }
 html.legacy-kindle.large-kindle .q-bar,
-html.legacy-kindle.large-kindle .q-bar-fill { height: 12px; }
+html.legacy-kindle.large-kindle .q-bar-fill { height: 14px; }
 html.legacy-kindle.large-kindle .q-refresh,
 html.legacy-kindle.large-kindle .q-balance-sub,
 html.legacy-kindle.large-kindle .q-balance-unit,
-html.legacy-kindle.large-kindle .footer { font-size: 16px; }
+html.legacy-kindle.large-kindle .footer { font-size: 18px; }
 html.legacy-kindle.large-kindle .q-balance { font-size: 34px; }
 html.legacy-kindle.large-kindle .view-controls { font-size: 18px; }
 
@@ -367,5 +369,46 @@ html.legacy-kindle.large-kindle .view-controls { font-size: 18px; }
 <script src="data.js"></script>
 <script src="live-endpoint.js"></script>
 <script src="dashboard-runtime.js?v=20260720"></script>
+<script>
+(function () {
+  if (document.documentElement.className.indexOf('large-kindle') < 0) return;
+  function spreadRows(card) {
+    var rows = card.getElementsByClassName('q-row');
+    if (!rows.length) return;
+    var last = rows[rows.length - 1];
+    var freeHeight = card.clientHeight - (last.offsetTop - card.offsetTop + last.offsetHeight) - 12;
+    if (freeHeight < 24) return;
+    var gap = Math.floor(freeHeight / (rows.length + 1));
+    for (var i = 0; i < rows.length; i++) rows[i].style.marginTop = gap + 'px';
+  }
+  function fillKindleHeight() {
+    var glm = document.getElementById('cardGlm');
+    var codex = document.getElementById('cardCodex');
+    var footer = document.getElementsByClassName('footer')[0];
+    var viewportHeight = window.innerHeight || document.documentElement.clientHeight;
+    if (!glm || !codex || !footer || !viewportHeight) return;
+    var cards = [glm, codex];
+    for (var i = 0; i < cards.length; i++) {
+      var rows = cards[i].getElementsByClassName('q-row');
+      for (var j = 0; j < rows.length; j++) rows[j].style.marginTop = '';
+    }
+    glm.style.height = '';
+    codex.style.height = '';
+    if ((window.innerWidth || document.documentElement.clientWidth) <= 700) return;
+    var baseHeight = Math.max(glm.offsetHeight, codex.offsetHeight);
+    var freeHeight = viewportHeight - (footer.offsetTop + footer.offsetHeight) - 12;
+    var targetHeight = Math.max(baseHeight, baseHeight + freeHeight);
+    glm.style.height = targetHeight + 'px';
+    codex.style.height = targetHeight + 'px';
+    spreadRows(glm);
+    spreadRows(codex);
+  }
+  if (window.addEventListener) {
+    window.addEventListener('load', fillKindleHeight, false);
+    window.addEventListener('resize', fillKindleHeight, false);
+  }
+  setTimeout(fillKindleHeight, 800);
+}());
+</script>
 </body>
 </html>
