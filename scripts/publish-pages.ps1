@@ -17,7 +17,7 @@ function Invoke-DirectGit([string[]]$GitArgs) {
 }
 
 if (-not (Test-Path -LiteralPath $distRoot)) { throw '尚未生成 dist，请先运行 scripts/run-dashboard.ps1。' }
-$snapshot = Get-Content -LiteralPath (Join-Path $distRoot 'data.json') -Raw | ConvertFrom-Json
+$snapshot = Get-Content -LiteralPath (Join-Path $distRoot 'data.json') -Raw -Encoding UTF8 | ConvertFrom-Json
 foreach ($name in @('codex', 'deepseek', 'glm')) {
   if (-not $snapshot.sources.$name.ok) { throw "$name 尚未成功采集；已停止公开发布。" }
 }

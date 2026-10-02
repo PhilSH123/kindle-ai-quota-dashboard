@@ -15,6 +15,14 @@ if (-not (Test-Path -LiteralPath $secretPath)) {
 $secrets = Import-Clixml -LiteralPath $secretPath
 $env:DEEPSEEK_API_KEY = [pscredential]::new('local', $secrets.DeepSeek).GetNetworkCredential().Password
 $env:GLM_CODING_API_KEY = [pscredential]::new('local', $secrets.Glm).GetNetworkCredential().Password
+$codexExe = Get-Command codex.exe -ErrorAction SilentlyContinue | Select-Object -First 1 -ExpandProperty Source
+if (-not $codexExe) {
+  $codexBin = Join-Path $env:LOCALAPPDATA 'OpenAI/Codex/bin'
+  $codexExe = Get-ChildItem -LiteralPath $codexBin -Filter codex.exe -Recurse -ErrorAction SilentlyContinue |
+    Sort-Object LastWriteTime -Descending | Select-Object -First 1 -ExpandProperty FullName
+}
+if (-not $codexExe) { throw '找不到 Codex 可执行文件 codex.exe。' }
+$env:CODEX_CLI_PATH = $codexExe
 
 try {
   Push-Location $repoRoot
@@ -30,5 +38,5 @@ try {
     Pop-Location
   }
 } finally {
-  Remove-Item Env:DEEPSEEK_API_KEY, Env:GLM_CODING_API_KEY -ErrorAction SilentlyContinue
+  Remove-Item Env:DEEPSEEK_API_KEY, Env:GLM_CODING_API_KEY, Env:CODEX_CLI_PATH -ErrorAction SilentlyContinue
 }
