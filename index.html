@@ -13,6 +13,9 @@
   if (forced || unsupported || /Kindle|Silk/i.test(navigator.userAgent)) {
     document.documentElement.className = 'legacy-kindle';
   }
+  if (/(?:\?|&)large=1(?:&|$)/.test(window.location.search)) {
+    document.documentElement.className += ' large-kindle';
+  }
 }());
 </script>
 <style>
@@ -135,6 +138,7 @@ body {
 }
 .data-alert.on { display: block; }
 .footer .warn { color: #000; font-weight: 700; }
+.view-controls { display: none; }
 
 /* Older Kindle WebKit has neither CSS Grid nor CSS custom properties. */
 html.legacy-kindle, html.legacy-kindle body { width: 100%; height: auto; overflow: visible; }
@@ -191,6 +195,52 @@ html.legacy-kindle .footer {
   clear: both; margin-top: 0; border-top: 1px solid #888; color: #555;
 }
 html.legacy-kindle .footer span:last-child { float: right; }
+html.legacy-kindle .view-controls {
+  display: block; clear: both; text-align: right;
+  margin: 2px 0 8px; font-size: 14px;
+}
+html.legacy-kindle .view-controls a { color: #000; text-decoration: underline; }
+html.legacy-kindle .view-controls .standard-link { display: none; }
+html.legacy-kindle.large-kindle .view-controls .large-link { display: none; }
+html.legacy-kindle.large-kindle .view-controls .standard-link { display: inline; }
+
+/* Enlarging the page's text keeps it inside the available width. */
+html.legacy-kindle.large-kindle body { font-size: 18px; }
+html.legacy-kindle.large-kindle .dt-time,
+html.legacy-kindle.large-kindle .w-temp { font-size: 54px; }
+html.legacy-kindle.large-kindle .dt-date,
+html.legacy-kindle.large-kindle .dt-week,
+html.legacy-kindle.large-kindle .w-detail { font-size: 18px; }
+html.legacy-kindle.large-kindle .dt-battery,
+html.legacy-kindle.large-kindle .quote-src { font-size: 16px; }
+html.legacy-kindle.large-kindle .quote-text { font-size: 25px; }
+html.legacy-kindle.large-kindle .q-card {
+  clear: both; float: none; width: 100%; height: auto;
+  min-height: 0; margin-right: 0;
+}
+html.legacy-kindle.large-kindle .q-name { font-size: 25px; }
+html.legacy-kindle.large-kindle .q-label { font-size: 18px; }
+html.legacy-kindle.large-kindle .q-pct { font-size: 20px; }
+html.legacy-kindle.large-kindle .q-bar,
+html.legacy-kindle.large-kindle .q-bar-fill { height: 12px; }
+html.legacy-kindle.large-kindle .q-refresh,
+html.legacy-kindle.large-kindle .q-balance-sub,
+html.legacy-kindle.large-kindle .q-balance-unit,
+html.legacy-kindle.large-kindle .footer { font-size: 16px; }
+html.legacy-kindle.large-kindle .q-balance { font-size: 34px; }
+html.legacy-kindle.large-kindle .view-controls { font-size: 18px; }
+
+@media screen and (max-width: 700px) {
+  html.legacy-kindle .top-row { display: block; margin-left: 0; }
+  html.legacy-kindle .datetime-card,
+  html.legacy-kindle .weather-card {
+    display: block; width: 100%; margin-bottom: 8px;
+  }
+  html.legacy-kindle .q-card {
+    clear: both; float: none; width: 100%; height: auto;
+    min-height: 0; margin-right: 0;
+  }
+}
 </style>
 </head>
 <body>
@@ -301,6 +351,11 @@ html.legacy-kindle .footer span:last-child { float: right; }
     <div class="q-balance mono"><span id="deepSeekBalance">¥ --</span> <span class="q-balance-unit sans">API Balance</span></div>
     <div class="q-balance-sub sans" id="deepSeekDetail">等待实时数据</div>
   </div>
+</div>
+
+<div class="view-controls sans">
+  <a class="large-link" href="?kindle=1&amp;large=1">放大文字</a>
+  <a class="standard-link" href="?kindle=1">标准文字</a>
 </div>
 
 <!-- ===== Footer ===== -->
