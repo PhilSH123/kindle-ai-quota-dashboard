@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-02T21:42:26.348+08:00",
+  "updatedAt": "2026-10-02T21:44:57.490+08:00",
   "weather": {
     "ok": true,
     "description": "多云",
@@ -11,7 +11,7 @@
     "windDir": "东南风",
     "place": "石家庄",
     "observedAt": "2026-10-02T21:30:00.000+08:00",
-    "fetchedAt": "2026-10-02T21:42:23.920+08:00",
+    "fetchedAt": "2026-10-02T21:44:55.005+08:00",
     "stale": false,
     "error": null
   },
@@ -24,7 +24,7 @@
       "ok": false,
       "label": "Claude",
       "windows": [],
-      "fetchedAt": "2026-10-02T21:42:24.311+08:00",
+      "fetchedAt": "2026-10-02T21:44:55.393+08:00",
       "error": "未启用",
       "disabled": true
     },
@@ -34,23 +34,23 @@
       "windows": [
         {
           "name": "5小时",
-          "usedPct": 53,
+          "usedPct": 55,
           "resetAt": "2026-10-02T22:58:58.000+08:00"
         },
         {
           "name": "周",
-          "usedPct": 80,
+          "usedPct": 81,
           "resetAt": "2026-10-04T10:52:59.000+08:00"
         }
       ],
-      "fetchedAt": "2026-10-02T21:42:24.312+08:00",
+      "fetchedAt": "2026-10-02T21:44:55.394+08:00",
       "error": null
     },
     "kimi": {
       "ok": false,
       "label": "Kimi",
       "windows": [],
-      "fetchedAt": "2026-10-02T21:42:24.357+08:00",
+      "fetchedAt": "2026-10-02T21:44:55.436+08:00",
       "error": "未启用",
       "disabled": true
     },
@@ -60,7 +60,7 @@
       "balance": 121.45,
       "currency": "CNY",
       "detail": "余额 ¥121.45",
-      "fetchedAt": "2026-10-02T21:42:24.357+08:00",
+      "fetchedAt": "2026-10-02T21:44:55.437+08:00",
       "error": null
     },
     "glm": {
@@ -83,7 +83,7 @@
           "resetAt": "2026-10-09T09:34:00.999+08:00"
         }
       ],
-      "fetchedAt": "2026-10-02T21:42:24.389+08:00",
+      "fetchedAt": "2026-10-02T21:44:55.468+08:00",
       "error": null
     }
   }

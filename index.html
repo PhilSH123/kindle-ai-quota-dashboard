@@ -4,6 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
 <title>Kindle AI Quota Dashboard</title>
+<script>
+(function () {
+  var forced = /(?:\?|&)kindle=1(?:&|$)/.test(window.location.search);
+  var unsupported = !window.CSS || !window.CSS.supports ||
+    !window.CSS.supports('display', 'grid') ||
+    !window.CSS.supports('color', 'var(--fg)');
+  if (forced || unsupported || /Kindle|Silk/i.test(navigator.userAgent)) {
+    document.documentElement.className = 'legacy-kindle';
+  }
+}());
+</script>
 <style>
 :root {
   --bg: #FFFFFF; --fg: #000000; --mid: #444444; --light: #666666;
@@ -124,6 +135,62 @@ body {
 }
 .data-alert.on { display: block; }
 .footer .warn { color: #000; font-weight: 700; }
+
+/* Older Kindle WebKit has neither CSS Grid nor CSS custom properties. */
+html.legacy-kindle, html.legacy-kindle body { width: 100%; height: auto; overflow: visible; }
+html.legacy-kindle body {
+  display: block; padding: 14px 18px 12px;
+  background: #fff; color: #000;
+}
+html.legacy-kindle .top-row {
+  display: table; width: 100%; table-layout: fixed;
+  border-spacing: 8px 0; margin: 0 0 12px -8px;
+}
+html.legacy-kindle .datetime-card, html.legacy-kindle .weather-card {
+  display: table-cell; width: 50%; vertical-align: top;
+  background: #f8f8f8; border: 2px solid #888; padding: 10px 12px;
+}
+html.legacy-kindle .dt-meta, html.legacy-kindle .dt-battery,
+html.legacy-kindle .w-row, html.legacy-kindle .q-head,
+html.legacy-kindle .q-label, html.legacy-kindle .footer { display: block; }
+html.legacy-kindle .dt-date, html.legacy-kindle .dt-week { color: #444; }
+html.legacy-kindle .dt-date { margin-right: 8px; }
+html.legacy-kindle .dt-battery, html.legacy-kindle .w-detail { color: #555; }
+html.legacy-kindle .dt-battery svg { vertical-align: middle; }
+html.legacy-kindle .w-temp, html.legacy-kindle .w-icon { display: inline-block; vertical-align: middle; }
+html.legacy-kindle .w-icon { color: #444; margin-left: 8px; }
+html.legacy-kindle .quote {
+  border: 2px solid #888; padding: 10px 20px;
+  margin-bottom: 12px; color: #000;
+}
+html.legacy-kindle .quote::before, html.legacy-kindle .quote::after { color: #888; }
+html.legacy-kindle .quote-src { color: #555; }
+html.legacy-kindle .quota-grid { display: block; width: 100%; overflow: hidden; }
+html.legacy-kindle .q-card {
+  display: block; float: left; width: 49%; height: 254px;
+  margin: 0 2% 12px 0; padding: 10px 12px;
+  background: #f8f8f8; border: 2px solid #888;
+}
+html.legacy-kindle #cardCodex { margin-right: 0; }
+html.legacy-kindle #cardKimi { display: none; }
+html.legacy-kindle #cardDeepSeek {
+  clear: both; float: none; width: 100%; height: auto;
+  min-height: 80px; margin-right: 0;
+}
+html.legacy-kindle .q-head svg { vertical-align: middle; margin-right: 6px; }
+html.legacy-kindle .q-name { vertical-align: middle; }
+html.legacy-kindle .q-label { overflow: hidden; color: #555; }
+html.legacy-kindle .q-label span:first-child { float: left; }
+html.legacy-kindle .q-label span:last-child { float: right; }
+html.legacy-kindle .q-pct { color: #222; }
+html.legacy-kindle .q-bar { background: #ddd; border: 1px solid #999; }
+html.legacy-kindle .q-bar-fill { background: #333; }
+html.legacy-kindle .q-refresh, html.legacy-kindle .q-balance-sub { color: #555; }
+html.legacy-kindle .q-balance-unit { color: #555; }
+html.legacy-kindle .footer {
+  clear: both; margin-top: 0; border-top: 1px solid #888; color: #555;
+}
+html.legacy-kindle .footer span:last-child { float: right; }
 </style>
 </head>
 <body>
