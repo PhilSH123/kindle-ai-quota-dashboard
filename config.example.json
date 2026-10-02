@@ -2,11 +2,16 @@
   "outputDir": "state",
   "keepLocalHistory": false,
   "quoteFile": "config/quote.json",
-  "weatherFile": "",
+  "weatherFile": "config/weather.json",
+  "weatherLocation": { "name": "石家庄", "latitude": 38.04139, "longitude": 114.47861 },
   "providers": {
     "deepseek": {
-      "enabled": false,
+      "enabled": true,
       "apiKeyEnv": "DEEPSEEK_API_KEY"
+    },
+    "glm": {
+      "enabled": true,
+      "apiKeyEnv": "GLM_CODING_API_KEY"
     },
     "claude": {
       "enabled": false,
@@ -15,7 +20,7 @@
       "credentialsFile": "~/.claude/.credentials.json"
     },
     "codex": {
-      "enabled": false,
+      "enabled": true,
       "experimental": true,
       "executableEnv": "CODEX_CLI_PATH"
     },

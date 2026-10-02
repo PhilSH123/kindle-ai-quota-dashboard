@@ -31,6 +31,7 @@ function gitIgnoredPaths(paths, rootDir = ROOT) {
 
 const ignoredDirs = new Set([
   '.git',
+  '.pages-publish',
   'dist',
   'history',
   'logs',

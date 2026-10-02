@@ -5,6 +5,7 @@ const path = require('node:path');
 const { collectClaude } = require('./collectors/claude.cjs');
 const { collectCodex } = require('./collectors/codex.cjs');
 const { collectDeepSeek } = require('./collectors/deepseek.cjs');
+const { collectGlm } = require('./collectors/glm.cjs');
 const { collectKimi } = require('./collectors/kimi.cjs');
 const { ROOT, loadConfig } = require('./lib/config.cjs');
 const {
@@ -14,7 +15,7 @@ const {
   writeAtomic,
 } = require('./lib/common.cjs');
 
-const SOURCE_NAMES = ['claude', 'codex', 'kimi', 'deepseek'];
+const SOURCE_NAMES = ['claude', 'codex', 'kimi', 'deepseek', 'glm'];
 
 function readQuote(filePath) {
   if (!filePath) return null;
@@ -50,6 +51,7 @@ function readWeather(filePath) {
   }
   try {
     const value = readJson(filePath);
+    const lastFetchedAt = isoBeijing(value.fetchedAt) || fetchedAt;
     return {
       ok: true,
       description: String(value.description || '天气').slice(0, 20),
@@ -61,7 +63,8 @@ function readWeather(filePath) {
       windDir: String(value.windDir || '').slice(0, 20),
       place: String(value.place || '').slice(0, 30),
       observedAt: isoBeijing(value.observedAt) || fetchedAt,
-      fetchedAt,
+      fetchedAt: lastFetchedAt,
+      stale: Date.now() - new Date(lastFetchedAt).getTime() > 60 * 60 * 1000,
       error: null,
     };
   } catch (error) {
@@ -142,23 +145,34 @@ function demoSnapshot() {
         fetchedAt: now,
         error: null,
       },
+      glm: {
+        ok: true,
+        label: 'GLM',
+        windows: [
+          { name: '5小时', usedPct: 31, resetAt: afterHours(2) },
+          { name: '周', usedPct: 47, resetAt: afterHours(80) },
+        ],
+        fetchedAt: now,
+        error: null,
+      },
     },
   };
 }
 
 async function realSnapshot(config) {
   const providers = config.providers || {};
-  const [claude, codex, kimi, deepseek] = await Promise.all([
+  const [claude, codex, kimi, deepseek, glm] = await Promise.all([
     collectClaude(providers.claude),
     collectCodex(providers.codex),
     collectKimi(providers.kimi),
     collectDeepSeek(providers.deepseek),
+    collectGlm(providers.glm),
   ]);
   return {
     updatedAt: isoBeijing(),
     weather: readWeather(config.weatherFile),
     quote: readQuote(config.quoteFile),
-    sources: { claude, codex, kimi, deepseek },
+    sources: { claude, codex, kimi, deepseek, glm },
   };
 }
 

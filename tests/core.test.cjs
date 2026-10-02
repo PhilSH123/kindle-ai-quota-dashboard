@@ -14,6 +14,7 @@ const {
   writeSnapshot,
 } = require('../src/collect.cjs');
 const { safeError } = require('../src/lib/common.cjs');
+const { parseGlmLimits } = require('../src/collectors/glm.cjs');
 const { ROOT, validateConfig } = require('../src/lib/config.cjs');
 const { collectProblems } = require('../scripts/check-public.cjs');
 
@@ -22,6 +23,18 @@ test('demo snapshot passes the public schema', () => {
   assert.doesNotThrow(() => validateSnapshot(snapshot));
   assert.equal(snapshot.weather.place, '示例城市');
   assert.equal(snapshot.sources.deepseek.balance, 12.34);
+  assert.equal(snapshot.sources.glm.windows[0].name, '5小时');
+});
+
+test('GLM Coding Plan quota windows use the provider response', () => {
+  const windows = parseGlmLimits({ data: { limits: [
+    { type: 'TOKENS_LIMIT', unit: 3, percentage: 35, nextResetTime: 1780000000000 },
+    { type: 'TOKENS_LIMIT', unit: 6, percentage: 52, nextResetTime: 1781000000000 },
+    { type: 'TIME_LIMIT', percentage: 10 },
+  ] } });
+  assert.deepEqual(windows.map((item) => item.name), ['5小时', '周', 'MCP 月']);
+  assert.equal(windows[0].usedPct, 35);
+  assert.ok(windows[0].resetAt);
 });
 
 test('last known good data is preserved only for enabled failing providers', () => {

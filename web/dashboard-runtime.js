@@ -18,7 +18,7 @@
     usingCache: false,
     requestId: 0
   };
-  var sourceNames = ['claude', 'codex', 'kimi', 'deepseek'];
+  var sourceNames = ['claude', 'codex', 'kimi', 'deepseek', 'glm'];
   var weekdays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六'];
 
   var ui = {
@@ -412,7 +412,7 @@
     if (data.updatedAt !== state.renderedAt) {
       state.renderedAt = data.updatedAt;
       updateWeather(data.weather);
-      updateQuotaCard('cardClaude', data.sources.claude);
+      updateQuotaCard('cardGlm', data.sources.glm);
       updateQuotaCard('cardCodex', data.sources.codex);
       updateQuotaCard('cardKimi', data.sources.kimi);
       updateBalance(data.sources.deepseek);
