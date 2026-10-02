@@ -3,6 +3,19 @@ $repoRoot = Split-Path -Parent $PSScriptRoot
 $pagesRoot = Join-Path $repoRoot '.pages-publish'
 $distRoot = Join-Path $repoRoot 'dist'
 
+function Invoke-DirectGit([string[]]$GitArgs) {
+  $previousConfig = $env:GIT_CONFIG_GLOBAL
+  try {
+    # This machine rewrites github.com to a read-only download mirror globally.
+    $env:GIT_CONFIG_GLOBAL = 'NUL'
+    & git -c credential.helper=manager @GitArgs
+    if ($LASTEXITCODE -ne 0) { throw "GitHub 操作失败：$($GitArgs[0])" }
+  } finally {
+    if ($null -eq $previousConfig) { Remove-Item Env:GIT_CONFIG_GLOBAL -ErrorAction SilentlyContinue }
+    else { $env:GIT_CONFIG_GLOBAL = $previousConfig }
+  }
+}
+
 if (-not (Test-Path -LiteralPath $distRoot)) { throw '尚未生成 dist，请先运行 scripts/run-dashboard.ps1。' }
 $snapshot = Get-Content -LiteralPath (Join-Path $distRoot 'data.json') -Raw | ConvertFrom-Json
 foreach ($name in @('codex', 'deepseek', 'glm')) {
@@ -20,10 +33,9 @@ if (-not $pagesAbsolute.StartsWith($repoAbsolute, [StringComparison]::OrdinalIgn
 
 if (-not (Test-Path -LiteralPath (Join-Path $pagesRoot '.git'))) {
   if (Test-Path -LiteralPath $pagesRoot) { throw '发布目录已存在且不是 Git 仓库，请人工检查。' }
-  git clone --quiet (git -C $repoRoot remote get-url origin) $pagesRoot
-  if ($LASTEXITCODE -ne 0) { throw '克隆发布仓库失败' }
-  $remotePages = git -C $pagesRoot ls-remote --heads origin gh-pages
-  if ($LASTEXITCODE -ne 0) { throw '检查 gh-pages 分支失败' }
+  $sourceUrl = git -C $repoRoot config --get remote.origin.url
+  Invoke-DirectGit -GitArgs @('clone', '--quiet', $sourceUrl, $pagesRoot)
+  $remotePages = Invoke-DirectGit -GitArgs @('-C', $pagesRoot, 'ls-remote', '--heads', 'origin', 'gh-pages')
   if ($remotePages) { git -C $pagesRoot checkout --quiet --track origin/gh-pages }
   else { git -C $pagesRoot checkout --quiet --orphan gh-pages }
   if ($LASTEXITCODE -ne 0) { throw '切换 gh-pages 分支失败' }
@@ -44,6 +56,5 @@ git -C $pagesRoot diff --cached --quiet
 if ($LASTEXITCODE -eq 0) { Write-Host '页面内容未变化'; exit 0 }
 git -C $pagesRoot commit --quiet -m 'Update dashboard snapshot'
 if ($LASTEXITCODE -ne 0) { throw '提交页面失败' }
-git -C $pagesRoot push origin gh-pages
-if ($LASTEXITCODE -ne 0) { throw '推送 GitHub Pages 失败' }
+Invoke-DirectGit -GitArgs @('-C', $pagesRoot, 'push', 'origin', 'gh-pages')
 Write-Host '已推送 gh-pages 分支。'
