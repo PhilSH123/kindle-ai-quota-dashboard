@@ -15,6 +15,7 @@ const {
 } = require('../src/collect.cjs');
 const { safeError } = require('../src/lib/common.cjs');
 const { parseGlmLimits } = require('../src/collectors/glm.cjs');
+const { parseCodexWindows } = require('../src/collectors/codex.cjs');
 const { ROOT, validateConfig } = require('../src/lib/config.cjs');
 const { collectProblems } = require('../scripts/check-public.cjs');
 
@@ -35,6 +36,16 @@ test('GLM Coding Plan quota windows use the provider response', () => {
   assert.deepEqual(windows.map((item) => item.name), ['5小时', '周', 'MCP 月']);
   assert.equal(windows[0].usedPct, 35);
   assert.ok(windows[0].resetAt);
+});
+
+test('Codex displays remaining quota while retaining raw used percentages', () => {
+  const windows = parseCodexWindows({ rateLimitsByLimitId: { codex: {
+    primary: { usedPercent: 100, windowDurationMins: 300 },
+    secondary: { usedPercent: 88, windowDurationMins: 10_080 },
+  } } });
+  assert.deepEqual(windows.map((item) => item.usedPct), [100, 88]);
+  assert.deepEqual(windows.map((item) => item.barPct), [0, 12]);
+  assert.deepEqual(windows.map((item) => item.displayValue), ['0%', '12%']);
 });
 
 test('last known good data is preserved only for enabled failing providers', () => {

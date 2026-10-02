@@ -83,6 +83,29 @@ function durationName(minutes, fallback) {
   return fallback;
 }
 
+function parseCodexWindows(payload) {
+  const byId = payload && payload.rateLimitsByLimitId;
+  const bucket = byId && (byId.codex || Object.values(byId)[0]) || payload && payload.rateLimits;
+  if (!bucket) throw new Error('Codex 响应中没有 rateLimits');
+  const windows = [];
+  for (const [key, fallback] of [['primary', '5小时'], ['secondary', '周']]) {
+    const item = bucket[key];
+    if (!item) continue;
+    const used = Number(item.usedPercent);
+    if (!Number.isFinite(used)) continue;
+    const remaining = clampPct(100 - used);
+    windows.push({
+      name: durationName(item.windowDurationMins, fallback),
+      usedPct: clampPct(used),
+      barPct: remaining,
+      displayValue: `${Math.round(remaining)}%`,
+      resetAt: item.resetsAt ? isoBeijing(Number(item.resetsAt) * 1000) : null,
+    });
+  }
+  if (!windows.length) throw new Error('Codex 响应中没有可识别的额度窗口');
+  return windows;
+}
+
 async function collectCodex(config = {}) {
   const fetchedAt = isoBeijing();
   if (!config.enabled) {
@@ -95,26 +118,11 @@ async function collectCodex(config = {}) {
   const executable = String(process.env[envName] || config.executable || 'codex').trim();
   try {
     const payload = await readCodexRateLimits(executable, Number(config.timeoutMs || 20_000));
-    const byId = payload && payload.rateLimitsByLimitId;
-    const bucket = byId && (byId.codex || Object.values(byId)[0]) || payload.rateLimits;
-    if (!bucket) throw new Error('Codex 响应中没有 rateLimits');
-    const windows = [];
-    for (const [key, fallback] of [['primary', '5小时'], ['secondary', '周']]) {
-      const item = bucket[key];
-      if (!item) continue;
-      const used = Number(item.usedPercent);
-      if (!Number.isFinite(used)) continue;
-      windows.push({
-        name: durationName(item.windowDurationMins, fallback),
-        usedPct: clampPct(used),
-        resetAt: item.resetsAt ? isoBeijing(Number(item.resetsAt) * 1000) : null,
-      });
-    }
-    if (!windows.length) throw new Error('Codex 响应中没有可识别的额度窗口');
+    const windows = parseCodexWindows(payload);
     return { ok: true, label: 'Codex', windows, fetchedAt, error: null };
   } catch (error) {
     return failedWindows('Codex', error, fetchedAt);
   }
 }
 
-module.exports = { collectCodex, durationName, readCodexRateLimits };
+module.exports = { collectCodex, durationName, parseCodexWindows, readCodexRateLimits };
