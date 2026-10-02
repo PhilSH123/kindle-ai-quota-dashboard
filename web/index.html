@@ -206,31 +206,42 @@ html.legacy-kindle.large-kindle .view-controls .standard-link { display: inline;
 
 /* Enlarging the page's text keeps it inside the available width. */
 html.legacy-kindle.large-kindle body { font-size: 18px; }
+html.legacy-kindle.large-kindle .data-alert.on { display: none; }
 html.legacy-kindle.large-kindle .dt-time,
-html.legacy-kindle.large-kindle .w-temp { font-size: 54px; }
+html.legacy-kindle.large-kindle .w-temp { font-size: 64px; }
 html.legacy-kindle.large-kindle .dt-date,
 html.legacy-kindle.large-kindle .dt-week,
-html.legacy-kindle.large-kindle .w-detail { font-size: 18px; }
+html.legacy-kindle.large-kindle .w-detail { font-size: 21px; }
 html.legacy-kindle.large-kindle .dt-battery,
-html.legacy-kindle.large-kindle .quote-src { font-size: 16px; }
-html.legacy-kindle.large-kindle .quote-text { font-size: 25px; }
+html.legacy-kindle.large-kindle .quote-src { font-size: 19px; }
+html.legacy-kindle.large-kindle .quote-text { font-size: 30px; }
+html.legacy-kindle.large-kindle .datetime-card,
+html.legacy-kindle.large-kindle .weather-card { vertical-align: middle; }
 html.legacy-kindle.large-kindle .q-card {
-  height: auto; min-height: 300px;
+  height: auto; min-height: 0; padding: 8px 12px;
 }
-html.legacy-kindle.large-kindle #cardDeepSeek { min-height: 110px; }
-html.legacy-kindle.large-kindle .q-name { font-size: 28px; }
-html.legacy-kindle.large-kindle .q-head { margin-bottom: 16px; }
-html.legacy-kindle.large-kindle .q-row { margin-bottom: 18px; }
-html.legacy-kindle.large-kindle .q-label { font-size: 20px; }
-html.legacy-kindle.large-kindle .q-pct { font-size: 23px; }
+html.legacy-kindle.large-kindle #cardDeepSeek { min-height: 0; }
+html.legacy-kindle.large-kindle .q-name { font-size: 29px; }
+html.legacy-kindle.large-kindle .q-head { margin-bottom: 4px; }
+html.legacy-kindle.large-kindle .q-row { margin-bottom: 2px; }
+html.legacy-kindle.large-kindle .q-row:last-child { margin-bottom: 0; }
+html.legacy-kindle.large-kindle .q-label { font-size: 22px; line-height: 1.1; margin-bottom: 1px; }
+html.legacy-kindle.large-kindle .q-pct { font-size: 24px; }
 html.legacy-kindle.large-kindle .q-bar,
 html.legacy-kindle.large-kindle .q-bar-fill { height: 14px; }
 html.legacy-kindle.large-kindle .q-refresh,
 html.legacy-kindle.large-kindle .q-balance-sub,
 html.legacy-kindle.large-kindle .q-balance-unit,
-html.legacy-kindle.large-kindle .footer { font-size: 18px; }
-html.legacy-kindle.large-kindle .q-balance { font-size: 34px; }
+html.legacy-kindle.large-kindle .footer { font-size: 19px; }
+html.legacy-kindle.large-kindle .q-refresh { line-height: 1.1; margin-top: 0; }
+html.legacy-kindle.large-kindle .q-balance { font-size: 42px; }
 html.legacy-kindle.large-kindle .view-controls { font-size: 18px; }
+html.legacy-kindle.large-kindle .view-controls { display: none; }
+.footer-standard-link { display: none; }
+html.legacy-kindle.large-kindle .footer-label { display: none; }
+html.legacy-kindle.large-kindle .footer-standard-link {
+  display: inline; color: #000; text-decoration: underline;
+}
 
 @media screen and (max-width: 700px) {
   html.legacy-kindle .top-row { display: block; margin-left: 0; }
@@ -362,7 +373,7 @@ html.legacy-kindle.large-kindle .view-controls { font-size: 18px; }
 
 <!-- ===== Footer ===== -->
 <div class="footer sans">
-  <span>AI 额度 · 天气 Open-Meteo</span>
+  <span><span class="footer-label">AI 额度 · 天气 Open-Meteo</span><a class="footer-standard-link" href="?kindle=1">标准文字</a></span>
   <span id="dataStatus">等待实时数据</span>
 </div>
 
@@ -382,24 +393,58 @@ html.legacy-kindle.large-kindle .view-controls { font-size: 18px; }
     for (var i = 0; i < rows.length; i++) rows[i].style.marginTop = gap + 'px';
   }
   function fillKindleHeight() {
+    var topRow = document.getElementsByClassName('top-row')[0];
+    var quote = document.getElementsByClassName('quote')[0];
     var glm = document.getElementById('cardGlm');
     var codex = document.getElementById('cardCodex');
+    var deepseek = document.getElementById('cardDeepSeek');
+    var balance = deepseek && deepseek.getElementsByClassName('q-balance')[0];
     var footer = document.getElementsByClassName('footer')[0];
     var viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-    if (!glm || !codex || !footer || !viewportHeight) return;
+    if (!topRow || !quote || !glm || !codex || !deepseek || !footer || !viewportHeight) return;
     var cards = [glm, codex];
     for (var i = 0; i < cards.length; i++) {
       var rows = cards[i].getElementsByClassName('q-row');
       for (var j = 0; j < rows.length; j++) rows[j].style.marginTop = '';
     }
+    topRow.style.height = '';
+    quote.style.height = '';
+    quote.style.paddingTop = '';
+    quote.style.paddingBottom = '';
     glm.style.height = '';
     codex.style.height = '';
+    deepseek.style.height = '';
+    if (balance) balance.style.marginTop = '';
     if ((window.innerWidth || document.documentElement.clientWidth) <= 700) return;
-    var baseHeight = Math.max(glm.offsetHeight, codex.offsetHeight);
+    var topHeight = topRow.offsetHeight;
+    var quoteHeight = quote.offsetHeight;
+    var pairHeight = Math.max(glm.offsetHeight, codex.offsetHeight);
+    var deepseekHeight = deepseek.offsetHeight;
+    var cardHeight = Math.max(pairHeight, deepseekHeight);
     var freeHeight = viewportHeight - (footer.offsetTop + footer.offsetHeight) - 12;
-    var targetHeight = Math.max(baseHeight, baseHeight + freeHeight);
-    glm.style.height = targetHeight + 'px';
-    codex.style.height = targetHeight + 'px';
+    var equalizeCost = 2 * cardHeight - pairHeight - deepseekHeight;
+    var budget = Math.max(0, freeHeight - equalizeCost);
+    var topNeed = Math.max(0, Math.floor(viewportHeight * 0.18) - topHeight);
+    var quoteNeed = Math.max(0, Math.floor(viewportHeight * 0.18) - quoteHeight);
+    var topExtra = Math.min(topNeed, Math.floor(budget * 0.4));
+    var quoteExtra = Math.min(quoteNeed, budget - topExtra);
+    var remaining = budget - topExtra - quoteExtra;
+    var moreTop = Math.min(topNeed - topExtra, remaining);
+    topExtra += moreTop;
+    remaining -= moreTop;
+    cardHeight += Math.floor(remaining / 2);
+    topRow.style.height = topHeight + topExtra + 'px';
+    quote.style.height = quoteHeight + quoteExtra + 'px';
+    glm.style.height = cardHeight + 'px';
+    codex.style.height = cardHeight + 'px';
+    deepseek.style.height = cardHeight + 'px';
+    var quoteText = quote.getElementsByClassName('quote-text')[0];
+    var quoteSource = quote.getElementsByClassName('quote-src')[0];
+    var quoteContent = quoteText.offsetHeight + quoteSource.offsetHeight + 8;
+    var quotePadding = Math.max(10, Math.floor((quote.offsetHeight - quoteContent) / 2));
+    quote.style.paddingTop = quotePadding + 'px';
+    quote.style.paddingBottom = quotePadding + 'px';
+    if (balance) balance.style.marginTop = Math.min(50, Math.floor(cardHeight * 0.16)) + 'px';
     spreadRows(glm);
     spreadRows(codex);
   }
