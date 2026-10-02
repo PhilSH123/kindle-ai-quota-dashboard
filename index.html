@@ -140,20 +140,23 @@ body {
 .footer .warn { color: #000; font-weight: 700; }
 .view-controls { display: none; }
 
-/* Older Kindle WebKit has neither CSS Grid nor CSS custom properties. */
+/* Older Kindle WebKit has neither CSS Grid nor CSS custom properties.
+   Two 49.3% columns and a 1.4% gap also match the vertical card gaps. */
 html.legacy-kindle, html.legacy-kindle body { width: 100%; height: auto; overflow: visible; }
 html.legacy-kindle body {
   display: block; padding: 14px 18px 12px;
   background: #fff; color: #000;
 }
 html.legacy-kindle .top-row {
-  display: table; width: 100%; table-layout: fixed;
-  border-spacing: 8px 0; margin: 0 0 12px -8px;
+  display: block; width: 100%; overflow: hidden;
+  margin: 0 0 1.4%;
 }
 html.legacy-kindle .datetime-card, html.legacy-kindle .weather-card {
-  display: table-cell; width: 50%; vertical-align: top;
+  display: block; float: left; width: 49.3%; height: 120px;
+  margin-right: 1.4%;
   background: #f8f8f8; border: 2px solid #888; padding: 10px 12px;
 }
+html.legacy-kindle .weather-card { margin-right: 0; }
 html.legacy-kindle .dt-meta, html.legacy-kindle .dt-battery,
 html.legacy-kindle .w-row, html.legacy-kindle .q-head,
 html.legacy-kindle .q-label, html.legacy-kindle .footer { display: block; }
@@ -165,14 +168,14 @@ html.legacy-kindle .w-temp, html.legacy-kindle .w-icon { display: inline-block; 
 html.legacy-kindle .w-icon { color: #444; margin-left: 8px; }
 html.legacy-kindle .quote {
   border: 2px solid #888; padding: 10px 20px;
-  margin-bottom: 12px; color: #000;
+  margin-bottom: 1.4%; color: #000;
 }
 html.legacy-kindle .quote::before, html.legacy-kindle .quote::after { color: #888; }
 html.legacy-kindle .quote-src { color: #555; }
 html.legacy-kindle .quota-grid { display: block; width: 100%; overflow: hidden; }
 html.legacy-kindle .q-card {
-  display: block; float: left; width: 49%; height: 254px;
-  margin: 0 2% 12px 0; padding: 10px 12px;
+  display: block; float: left; width: 49.3%; height: 254px;
+  margin: 0 1.4% 1.4% 0; padding: 10px 12px;
   background: #f8f8f8; border: 2px solid #888;
 }
 html.legacy-kindle #cardCodex { margin-right: 0; }
@@ -217,7 +220,7 @@ html.legacy-kindle.large-kindle .quote-src { font-size: 21px; }
 html.legacy-kindle.large-kindle .quote-text { font-size: 34px; }
 html.legacy-kindle.large-kindle .w-icon span { font-size: 40px !important; }
 html.legacy-kindle.large-kindle .datetime-card,
-html.legacy-kindle.large-kindle .weather-card { vertical-align: middle; }
+html.legacy-kindle.large-kindle .weather-card { height: 100%; }
 html.legacy-kindle.large-kindle .q-card {
   height: auto; min-height: 0; padding: 8px 12px;
 }
@@ -246,10 +249,13 @@ html.legacy-kindle.large-kindle .footer-standard-link {
 }
 
 @media screen and (max-width: 700px) {
-  html.legacy-kindle .top-row { display: block; margin-left: 0; }
+  html.legacy-kindle .top-row { display: block; height: auto; }
   html.legacy-kindle .datetime-card,
-  html.legacy-kindle .weather-card {
-    display: block; width: 100%; margin-bottom: 8px;
+  html.legacy-kindle .weather-card,
+  html.legacy-kindle.large-kindle .datetime-card,
+  html.legacy-kindle.large-kindle .weather-card {
+    display: block; float: none; width: 100%; height: auto;
+    margin-right: 0; margin-bottom: 8px;
   }
   html.legacy-kindle .q-card {
     clear: both; float: none; width: 100%; height: auto;
@@ -396,6 +402,8 @@ html.legacy-kindle.large-kindle .footer-standard-link {
   }
   function fillKindleHeight() {
     var topRow = document.getElementsByClassName('top-row')[0];
+    var timeCard = document.getElementsByClassName('datetime-card')[0];
+    var weatherCard = document.getElementsByClassName('weather-card')[0];
     var quote = document.getElementsByClassName('quote')[0];
     var glm = document.getElementById('cardGlm');
     var codex = document.getElementById('cardCodex');
@@ -403,13 +411,19 @@ html.legacy-kindle.large-kindle .footer-standard-link {
     var balance = deepseek && deepseek.getElementsByClassName('q-balance')[0];
     var footer = document.getElementsByClassName('footer')[0];
     var viewportHeight = window.innerHeight || document.documentElement.clientHeight;
-    if (!topRow || !quote || !glm || !codex || !deepseek || !footer || !viewportHeight) return;
+    if (!topRow || !timeCard || !weatherCard || !quote || !glm || !codex || !deepseek || !footer || !viewportHeight) return;
     var cards = [glm, codex];
     for (var i = 0; i < cards.length; i++) {
       var rows = cards[i].getElementsByClassName('q-row');
       for (var j = 0; j < rows.length; j++) rows[j].style.marginTop = '';
     }
     topRow.style.height = '';
+    timeCard.style.height = '';
+    weatherCard.style.height = '';
+    timeCard.style.paddingTop = '';
+    timeCard.style.paddingBottom = '';
+    weatherCard.style.paddingTop = '';
+    weatherCard.style.paddingBottom = '';
     quote.style.height = '';
     quote.style.paddingTop = '';
     quote.style.paddingBottom = '';
@@ -435,7 +449,21 @@ html.legacy-kindle.large-kindle .footer-standard-link {
     topExtra += moreTop;
     remaining -= moreTop;
     cardHeight += Math.floor(remaining / 2);
-    topRow.style.height = topHeight + topExtra + 'px';
+    var targetTopHeight = topHeight + topExtra;
+    topRow.style.height = targetTopHeight + 'px';
+    timeCard.style.height = targetTopHeight + 'px';
+    weatherCard.style.height = targetTopHeight + 'px';
+    var timeContent = document.getElementById('dtTime').offsetHeight +
+      timeCard.getElementsByClassName('dt-meta')[0].offsetHeight +
+      timeCard.getElementsByClassName('dt-battery')[0].offsetHeight + 14;
+    var weatherContent = weatherCard.getElementsByClassName('w-row')[0].offsetHeight +
+      weatherCard.getElementsByClassName('w-detail')[0].offsetHeight + 4;
+    var timePadding = Math.max(10, Math.floor((targetTopHeight - timeContent - 4) / 2));
+    var weatherPadding = Math.max(10, Math.floor((targetTopHeight - weatherContent - 4) / 2));
+    timeCard.style.paddingTop = timePadding + 'px';
+    timeCard.style.paddingBottom = timePadding + 'px';
+    weatherCard.style.paddingTop = weatherPadding + 'px';
+    weatherCard.style.paddingBottom = weatherPadding + 'px';
     quote.style.height = quoteHeight + quoteExtra + 'px';
     glm.style.height = cardHeight + 'px';
     codex.style.height = cardHeight + 'px';
