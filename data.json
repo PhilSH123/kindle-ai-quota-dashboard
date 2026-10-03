@@ -1,30 +1,30 @@
 {
-  "updatedAt": "2026-10-02T23:22:27.256+08:00",
+  "updatedAt": "2026-10-03T11:02:34.473+08:00",
   "weather": {
     "ok": true,
-    "description": "多云",
-    "iconKey": "cloudy",
-    "tempC": 17.7,
-    "feelsLikeC": 15.6,
-    "humidity": 35,
-    "windKph": 1.8,
+    "description": "晴",
+    "iconKey": "clear",
+    "tempC": 19.6,
+    "feelsLikeC": 18.2,
+    "humidity": 39,
+    "windKph": 5.1,
     "windDir": "东南风",
     "place": "石家庄",
-    "observedAt": "2026-10-02T23:15:00.000+08:00",
-    "fetchedAt": "2026-10-02T23:22:24.260+08:00",
+    "observedAt": "2026-10-03T11:00:00.000+08:00",
+    "fetchedAt": "2026-10-03T11:02:29.163+08:00",
     "stale": false,
     "error": null
   },
   "quote": {
-    "text": "长风破浪会有时，直挂云帆济沧海。",
-    "source": "李白《行路难》"
+    "text": "海内存知己，天涯若比邻。",
+    "source": "王勃《送杜少府之任蜀州》"
   },
   "sources": {
     "claude": {
       "ok": false,
       "label": "Claude",
       "windows": [],
-      "fetchedAt": "2026-10-02T23:22:24.656+08:00",
+      "fetchedAt": "2026-10-03T11:02:31.080+08:00",
       "error": "未启用",
       "disabled": true
     },
@@ -48,13 +48,15 @@
         }
       ],
       "fetchedAt": "2026-10-02T23:22:24.657+08:00",
-      "error": null
+      "error": "failed to fetch codex rate limits: error sending request for url (https://chatgpt.com/backend-api/wham/usage)",
+      "stale": true,
+      "lastAttemptAt": "2026-10-03T11:02:31.081+08:00"
     },
     "kimi": {
       "ok": false,
       "label": "Kimi",
       "windows": [],
-      "fetchedAt": "2026-10-02T23:22:24.699+08:00",
+      "fetchedAt": "2026-10-03T11:02:31.474+08:00",
       "error": "未启用",
       "disabled": true
     },
@@ -64,7 +66,7 @@
       "balance": 121.16,
       "currency": "CNY",
       "detail": "余额 ¥121.16",
-      "fetchedAt": "2026-10-02T23:22:24.699+08:00",
+      "fetchedAt": "2026-10-03T11:02:31.474+08:00",
       "error": null
     },
     "glm": {
@@ -74,7 +76,7 @@
         {
           "name": "MCP 月",
           "usedPct": 0,
-          "resetAt": "2026-11-02T10:00:32.999+08:00"
+          "resetAt": "2026-11-02T10:00:32.998+08:00"
         },
         {
           "name": "5小时",
@@ -84,10 +86,10 @@
         {
           "name": "周",
           "usedPct": 0,
-          "resetAt": "2026-10-09T09:34:00.998+08:00"
+          "resetAt": "2026-10-09T09:34:00.999+08:00"
         }
       ],
-      "fetchedAt": "2026-10-02T23:22:24.732+08:00",
+      "fetchedAt": "2026-10-03T11:02:31.508+08:00",
       "error": null
     }
   }
